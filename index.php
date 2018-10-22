@@ -1,129 +1,81 @@
 <?php
-session_start();
-require_once("dbcontroller.php");
-$db_handle = new DBController();
-if(!empty($_GET["action"])) {
-switch($_GET["action"]) {
-	case "add":
-		if(!empty($_POST["quantity"])) {
-			$productByCode = $db_handle->runQuery("SELECT * FROM tblproduct WHERE code='" . $_GET["code"] . "'");
-			$itemArray = array($productByCode[0]["code"]=>array('name'=>$productByCode[0]["name"], 'code'=>$productByCode[0]["code"], 'quantity'=>$_POST["quantity"], 'price'=>$productByCode[0]["price"], 'image'=>$productByCode[0]["image"]));
-			
-			if(!empty($_SESSION["cart_item"])) {
-				if(in_array($productByCode[0]["code"],array_keys($_SESSION["cart_item"]))) {
-					foreach($_SESSION["cart_item"] as $k => $v) {
-							if($productByCode[0]["code"] == $k) {
-								if(empty($_SESSION["cart_item"][$k]["quantity"])) {
-									$_SESSION["cart_item"][$k]["quantity"] = 0;
-								}
-								$_SESSION["cart_item"][$k]["quantity"] += $_POST["quantity"];
-							}
-					}
-				} else {
-					$_SESSION["cart_item"] = array_merge($_SESSION["cart_item"],$itemArray);
-				}
-			} else {
-				$_SESSION["cart_item"] = $itemArray;
-			}
-		}
-	break;
-	case "remove":
-		if(!empty($_SESSION["cart_item"])) {
-			foreach($_SESSION["cart_item"] as $k => $v) {
-					if($_GET["code"] == $k)
-						unset($_SESSION["cart_item"][$k]);				
-					if(empty($_SESSION["cart_item"]))
-						unset($_SESSION["cart_item"]);
-			}
-		}
-	break;
-	case "empty":
-		unset($_SESSION["cart_item"]);
-	break;	
-}
-}
-?>
-<HTML>
-<HEAD>
-<TITLE>Simple PHP Shopping Cart</TITLE>
-<link href="style.css" type="text/css" rel="stylesheet" />
-</HEAD>
-<BODY>
-<div id="shopping-cart">
-<div class="txt-heading">Shopping Cart</div>
+/* [CONFIGURATION] */
+require("config.php");
 
-<a id="btnEmpty" href="index.php?action=empty">Empty Cart</a>
-<?php
-if(isset($_SESSION["cart_item"])){
-    $total_quantity = 0;
-    $total_price = 0;
-?>	
-<table class="tbl-cart" cellpadding="10" cellspacing="1">
-<tbody>
-<tr>
-<th style="text-align:left;">Name</th>
-<th style="text-align:left;">Code</th>
-<th style="text-align:right;" width="5%">Quantity</th>
-<th style="text-align:right;" width="10%">Unit Price</th>
-<th style="text-align:right;" width="10%">Price</th>
-<th style="text-align:center;" width="5%">Remove</th>
-</tr>	
-<?php		
-    foreach ($_SESSION["cart_item"] as $item){
-        $item_price = $item["quantity"]*$item["price"];
-		?>
-				<tr>
-				<td><img src="<?php echo $item["image"]; ?>" class="cart-item-image" /><?php echo $item["name"]; ?></td>
-				<td><?php echo $item["code"]; ?></td>
-				<td style="text-align:right;"><?php echo $item["quantity"]; ?></td>
-				<td  style="text-align:right;"><?php echo "$ ".$item["price"]; ?></td>
-				<td  style="text-align:right;"><?php echo "$ ". number_format($item_price,2); ?></td>
-				<td style="text-align:center;"><a href="index.php?action=remove&code=<?php echo $item["code"]; ?>" class="btnRemoveAction"><img src="icon-delete.png" alt="Remove Item" /></a></td>
-				</tr>
-				<?php
-				$total_quantity += $item["quantity"];
-				$total_price += ($item["price"]*$item["quantity"]);
-		}
-		?>
-
-<tr>
-<td colspan="2" align="right">Total:</td>
-<td align="right"><?php echo $total_quantity; ?></td>
-<td align="right" colspan="2"><strong><?php echo "$ ".number_format($total_price, 2); ?></strong></td>
-<td></td>
-</tr>
-</tbody>
-</table>		
-  <?php
-} else {
+/* [CONNECT TO DB] */
+$pdo = new PDO(
+	"mysql:host=$host;dbname=$dbname;charset=$charset", 
+	$user, $password, [
+    PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
+    PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+    PDO::ATTR_EMULATE_PREPARES   => false
+	]
+);
 ?>
-<div class="no-records">Your Cart is Empty</div>
-<?php 
-}
-?>
-</div>
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Ferreteria</title>
+	<meta name="description" content="Cart demo">
+    <meta name="author" content="Code Boxx">
+	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+	
+	<!-- [BOOTSTRAP + JQUERY] -->
+	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css" integrity="sha384-WskhaSGFgHYWDcbwN70/dfYBj47jz9qbsMId/iRN3ewGhXQFZCSftd1LZCfmhktB" crossorigin="anonymous">
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"/>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
+	<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js" integrity="sha384-smHYKdLADwkXOn1EmN1qk/HfnUcbVRZyYmZ4qpPea6sjB/pTJ0euyQp0Mk8ck+5T" crossorigin="anonymous"></script>
 
-<div id="product-grid">
-	<div class="txt-heading">Products</div>
-	<?php
-	$product_array = $db_handle->runQuery("SELECT * FROM tblproduct ORDER BY id ASC");
-	if (!empty($product_array)) { 
-		foreach($product_array as $key=>$value){
-	?>
-		<div class="product-item">
-			<form method="post" action="index.php?action=add&code=<?php echo $product_array[$key]["code"]; ?>">
-			<div class="product-image"><img src="<?php echo $product_array[$key]["image"]; ?>"></div>
-			<div class="product-tile-footer">
-			<div class="product-title"><?php echo $product_array[$key]["name"]; ?></div>
-			<div class="product-price"><?php echo "$".$product_array[$key]["price"]; ?></div>
-			<div class="cart-action"><input type="text" class="product-quantity" name="quantity" value="1" size="2" /><input type="submit" value="Add to Cart" class="btnAddAction" /></div>
-			</div>
-			</form>
+	<!-- [JS] -->
+	<script src="cart.js"></script>
+
+	<!-- [STYLE] -->
+	<style>
+	header.container{ background:#d32213; }
+	footer.container{ background:#eaeaea; }
+	header.container, footer.container{ padding:20px; }
+	#products img{ max-width:100%; }
+	#alert, #cart{ display:none; }
+	</style>
+</head>
+<body>
+	<!-- [ALERT] -->
+	<div class="alert alert-success" id="alert"></div>
+
+	<!-- [HEADER SECTION] -->
+	<header class="container"><div class="row"><div class="col">
+		Ferreteria Prat <span onclick="toggleCart();">[Carro]</span>
+	</div></div></header>
+
+	<!-- [PRODUCTS] -->	
+	<div id="products" class="container"><div class="row"><?php
+	/* [GRAB ALL THE PRODUCTS] */
+	// 3 PRODUCTS IN A ROW
+	$perrow = 3; $now = 0;
+	$stmt = $pdo->query('SELECT * FROM `products`');
+	while ($row = $stmt->fetch()){ ?>
+		<div class="col-4">
+			<img src="images/<?=$row['product_image']?>"/>
+			<h3><?=$row['product_name']?></h3>
+			<div>$<?=$row['product_price']?></div>
+			<div><?=$row['product_description']?></div>
+			<div class="btn btn-success" onclick="addToCart(<?=$row['product_id']?>);">Agregar al carro</div>
 		</div>
-	<?php
+		<?php
+		// ROW BREAK
+		$now++;
+		if ($now==3) {
+			echo '</div><div class="row">';
+			$now = 0;
 		}
-	}
-	?>
-</div>
-</BODY>
-</HTML>
+	} ?></div></div>
+
+	<!-- [CART] -->
+	<div class="container"><div class="row"><div class="col" id="cart"></div></div>
+
+	<!-- [FOOTER] -->
+	<!--<footer class="container"><div class="row"><div class="col">
+		&copy; Copyright My Awesome Site. All rights reserved.
+	</div></div></footer> -->
+</body>
+</html>
