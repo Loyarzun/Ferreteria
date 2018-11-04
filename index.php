@@ -1,7 +1,6 @@
 <?php
 /* [CONFIGURATION] */
 require("config.php");
-
 /* [CONNECT TO DB] */
 $pdo = new PDO(
 	"mysql:host=$host;dbname=$dbname;charset=$charset", 
