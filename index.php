@@ -45,9 +45,9 @@ $pdo = new PDO(
 	<header class="container"><div class="row"><div class="col">
 		Ferreteria Prat <span onclick="toggleCart();">[Carro]</span>
 	</div></div>
-        <div class="row"><div class="col">                
+        <!--<div class="row"><div class="col">                
                 <span onclick="anadir();">[Añadir Producto]</span>
-        </div></div> 
+        </div></div> -->
         </header>
 
 	<!-- [PRODUCTS] -->	
@@ -63,9 +63,9 @@ $pdo = new PDO(
 			<div>$<?=$row['product_price']?></div>
 			<div><?=$row['product_description']?></div>
 			<div class="btn btn-success" onclick="addToCart(<?=$row['product_id']?>);">Agregar al carro</div>
-                        <!-- if(isset($_SESSION['adminid'])){ -->
+                        <!-- if(isset($_SESSION['adminid'])){ 
                         <div class="btn btn-success" onclick="EditarProducto(<?=$row['product_id']?>);">Eliminar producto</div>
-                       <!-- } -->
+                        } -->
 		</div>
 		<?php
 		// ROW BREAK

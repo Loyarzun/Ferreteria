@@ -115,8 +115,8 @@ function EditarProducto(id){
 			request:"editar"
 		}
 	}).done(function() {
-		$('#alert').html("Producto editado").show();
-		setTimeout(hideMessage, 2000);
+		$('#alert').html("Producto eliminado").show();
+		setTimeout(hideMessage, 10000);
 	});
 }
 
