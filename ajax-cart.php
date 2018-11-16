@@ -18,11 +18,12 @@ $pdo = new PDO(
 // PROCESS REQUESTS
 switch ($_POST['request']) {
 	case "editar":
-                $sql = sprintf("DELETE FROM `products` WHERE product_id = %d",
+                $sql = sprintf("UPDATE `products` SET `product_show` = 0 WHERE product_id = %d",
                         $_POST['product_id']
                         );
 		$pdo->exec($sql);
                 break;
+            
     
         case "add":
 		// ITEMS WILL BE STORED IN THE ORDER OF
@@ -37,12 +38,15 @@ switch ($_POST['request']) {
 	// THIS PART COULD BE DONE BETTER BUT I WILL JUST LEAVE IT AS TO SIMPLIFY THINGS
 	case "show":
 		// FETCH PRODUCTS
-		$stmt = $pdo->query('SELECT * FROM `products`');
+		$stmt = $pdo->query('SELECT * FROM `products` WHERE `product_show` = 1');
 		$products = array();
 		while ($row = $stmt->fetch()){
 			$products[$row['product_id']] = $row;
 		}
 
+                // VALUES ('%s', '%s', '%d')", 
+		//	$_POST['name'], $_POST['desc'], $_POST['price']
+                
 		// SPIT OUT THE CART IN HTML
 		$sub = 0;
 		$total = 0; ?>
@@ -138,7 +142,7 @@ switch ($_POST['request']) {
                 
                 case "agregarprod":
 		// CREATE THE ORDER
-		$sql = sprintf("INSERT INTO `products` (`product_name`, `product_description`, `product_price`) VALUES ('%s', '%s', '%f')", 
+		$sql = sprintf("INSERT INTO `products` (`product_name`, `product_description`, `product_price`) VALUES ('%s', '%s', '%d')", 
 			$_POST['name'], $_POST['desc'], $_POST['price']
 		);
 		$pdo->exec($sql);

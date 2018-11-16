@@ -55,7 +55,7 @@ $pdo = new PDO(
 	/* [GRAB ALL THE PRODUCTS] */
 	// 3 PRODUCTS IN A ROW
 	$perrow = 3; $now = 0;
-	$stmt = $pdo->query('SELECT * FROM `products`');
+	$stmt = $pdo->query('SELECT * FROM `products` WHERE `product_show` = 1');
 	while ($row = $stmt->fetch()){ ?>
 		<div class="col-4">
 			<img src="images/<?=$row['product_image']?>"/>
