@@ -15,7 +15,7 @@ if($mail != "" && $pass != ""){
 
 	$row = mysqli_fetch_array($result,MYSQLI_ASSOC);
 	$count = mysqli_num_rows($result);
-	echo $count;
+
 	if($count == 1) {
 		foreach ($result as $res){
 			$_SESSION['adminid'] = $res;
@@ -24,6 +24,7 @@ if($mail != "" && $pass != ""){
 		}
 	}else {
 		$error = "Your Login Name or Password is invalid";
+		echo $error;
 	}
 }
 else{
