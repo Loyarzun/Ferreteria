@@ -17,7 +17,15 @@ $pdo = new PDO(
 
 // PROCESS REQUESTS
 switch ($_POST['request']) {
-	case "add":
+	case "editar":
+                $sql = sprintf("UPDATE `products` SET `product_show` = 0 WHERE product_id = %d",
+                        $_POST['product_id']
+                        );
+		$pdo->exec($sql);
+                break;
+            
+    
+        case "add":
 		// ITEMS WILL BE STORED IN THE ORDER OF
 		// $_SESSION['cart'][PRODUCT ID] = QUANTITY
 		if (is_numeric($_SESSION['cart'][$_POST['product_id']])) {
@@ -30,12 +38,15 @@ switch ($_POST['request']) {
 	// THIS PART COULD BE DONE BETTER BUT I WILL JUST LEAVE IT AS TO SIMPLIFY THINGS
 	case "show":
 		// FETCH PRODUCTS
-		$stmt = $pdo->query('SELECT * FROM `products`');
+		$stmt = $pdo->query('SELECT * FROM `products` WHERE `product_show` = 1');
 		$products = array();
 		while ($row = $stmt->fetch()){
 			$products[$row['product_id']] = $row;
 		}
 
+                // VALUES ('%s', '%s', '%d')", 
+		//	$_POST['name'], $_POST['desc'], $_POST['price']
+                
 		// SPIT OUT THE CART IN HTML
 		$sub = 0;
 		$total = 0; ?>
@@ -110,5 +121,34 @@ switch ($_POST['request']) {
 		// CLEAR OUT THE CURRENT CART
 		$_SESSION['cart'] = array();
 		break;
+                
+                case "anadir":
+            ?>
+            <h1> Agregar un producto </h1>
+            <table class="table table-striped">
+			<tr>
+            <td colspan="2"></td>
+				<td>
+					Nombre: <input type="text" id="prod_name"/><br><br>
+					Descripcion: <input type="text" id="prod_desc"/><br><br>
+                                        Precio <input type="number" name="prod_precio" min="1"><br><br>
+					<input type="button" class="btn btn-success" value="Crear" onclick="agregar();"/>
+ 				        <!--#000080-->
+                                </td>
+            </tr>
+                </table>
+            <?php
+            break;
+                
+                case "agregarprod":
+		// CREATE THE ORDER
+		$sql = sprintf("INSERT INTO `products` (`product_name`, `product_description`, `product_price`) VALUES ('%s', '%s', '%d')", 
+			$_POST['name'], $_POST['desc'], $_POST['price']
+		);
+		$pdo->exec($sql);
+		break;
 }
+## Test ##
+## INSERT INTO `products` (`product_id`, `product_name`, `product_description`, `product_price`) VALUES (7, 'Test','Marca: Test' ,'1');
+## DELETE FROM `products` WHERE product_id = 7
 ?>

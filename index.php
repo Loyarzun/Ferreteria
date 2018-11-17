@@ -44,14 +44,18 @@ $pdo = new PDO(
 	<!-- [HEADER SECTION] -->
 	<header class="container"><div class="row"><div class="col">
 		Ferreteria Prat <span onclick="toggleCart();">[Carro]</span>
-	</div></div></header>
+	</div></div>
+        <!--<div class="row"><div class="col">                
+                <span onclick="anadir();">[Añadir Producto]</span>
+        </div></div> -->
+        </header>
 
 	<!-- [PRODUCTS] -->	
 	<div id="products" class="container"><div class="row"><?php
 	/* [GRAB ALL THE PRODUCTS] */
 	// 3 PRODUCTS IN A ROW
 	$perrow = 3; $now = 0;
-	$stmt = $pdo->query('SELECT * FROM `products`');
+	$stmt = $pdo->query('SELECT * FROM `products` WHERE `product_show` = 1');
 	while ($row = $stmt->fetch()){ ?>
 		<div class="col-4">
 			<img src="images/<?=$row['product_image']?>"/>
@@ -59,6 +63,9 @@ $pdo = new PDO(
 			<div>$<?=$row['product_price']?></div>
 			<div><?=$row['product_description']?></div>
 			<div class="btn btn-success" onclick="addToCart(<?=$row['product_id']?>);">Agregar al carro</div>
+                        <!-- if(isset($_SESSION['adminid'])){ 
+                        <div class="btn btn-success" onclick="EditarProducto(<?=$row['product_id']?>);">Eliminar producto</div>
+                        } -->
 		</div>
 		<?php
 		// ROW BREAK
@@ -71,7 +78,9 @@ $pdo = new PDO(
 
 	<!-- [CART] -->
 	<div class="container"><div class="row"><div class="col" id="cart"></div></div>
-
+            
+        <!-- [QUERY] -->
+	<div class="container"><div class="row"><div class="col" id="formulario"></div></div>
 	<!-- [FOOTER] -->
 	<!--<footer class="container"><div class="row"><div class="col">
 		&copy; Copyright My Awesome Site. All rights reserved.
