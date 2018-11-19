@@ -1,9 +1,15 @@
 <?php
 /* [CONFIGURATION] */
 require("config.php");
-
 /* [CONNECT TO DB] */
-$db = mysqli_connect($host ,$user,$password,$dbname);
+$pdo = new PDO(
+		"mysql:host=$host;dbname=$dbname;charset=$charset",
+		$user, $password, [
+				PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
+				PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+				PDO::ATTR_EMULATE_PREPARES   => false
+		]
+		);
 ?>
 <!DOCTYPE html>
 <html>
@@ -45,8 +51,8 @@ $db = mysqli_connect($host ,$user,$password,$dbname);
 	/* [GRAB ALL THE PRODUCTS] */
 	// 3 PRODUCTS IN A ROW
 	$perrow = 3; $now = 0;
-	$stmt = $db->query('SELECT * FROM `products`');
-	while ($row = $stmt->fetch_assoc()){ ?>
+	$stmt = $pdo->query('SELECT * FROM `products`');
+	while ($row = $stmt->fetch()){ ?>
 		<div class="col-4">
 			<img src="images/<?=$row['product_image']?>"/>
 			<h3><?=$row['product_name']?></h3>
