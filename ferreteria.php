@@ -66,6 +66,15 @@ header.container, footer.container{ padding:20px; }
 <section class="jumbotron text-center">
 <div class="container">
 <h1 class="jumbotron-heading">Ferreteria Prat</h1>
+<!-- [ALERT] -->
+	<div class="alert alert-success" id="alert"></div>
+
+	<!-- [HEADER SECTION] -->
+	<header class="container"><div class="row"><div class="col">
+		Ferreteria Prat <span onclick="toggleCart();">[Carro]</span>
+	</div></div></header>
+
+	<!-- [PRODUCTS] -->
 <p class="lead text-muted">Somos una empresa familiar con más de 32 años de experiencia en el rubro Ferretero en la ciudad de Antofagasta, con un amplio conocimiento del medio, conservando la atención de la Ferretería tradicional de antaño, con modernos procesos acordes a nuestros tiempos, lo que hasta la fecha nos hace mantener altos estándares en atención personalizada a nuestros cliente.</p>
 <img src = "images//jmm2ferrete.jpg"/>
 </div>
