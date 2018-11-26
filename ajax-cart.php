@@ -6,14 +6,7 @@ session_start();
 require("config.php");
 
 // CONNECT TO DB
-$pdo = new PDO(
-	"mysql:host=$host;dbname=$dbname;charset=$charset", 
-	$user, $password, [
-	PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
-	PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-	PDO::ATTR_EMULATE_PREPARES   => false,
-	]
-);
+$db = mysqli_connect($host ,$user,$password,$dbname);
 
 // PROCESS REQUESTS
 switch ($_POST['request']) {
@@ -21,7 +14,7 @@ switch ($_POST['request']) {
                 $sql = sprintf("UPDATE `products` SET `product_show` = 0 WHERE product_id = %d",
                         $_POST['product_id']
                         );
-		$pdo->exec($sql);
+		$db->exec($sql);
                 break;
             
     
@@ -38,9 +31,9 @@ switch ($_POST['request']) {
 	// THIS PART COULD BE DONE BETTER BUT I WILL JUST LEAVE IT AS TO SIMPLIFY THINGS
 	case "show":
 		// FETCH PRODUCTS
-		$stmt = $pdo->query('SELECT * FROM `products` WHERE `product_show` = 1');
+		$stmt = $db->query('SELECT * FROM `products` WHERE `product_show` = 1');
 		$products = array();
-		while ($row = $stmt->fetch()){
+		while ($row = $stmt->fetch_assoc()){
 			$products[$row['product_id']] = $row;
 		}
 
@@ -106,8 +99,8 @@ switch ($_POST['request']) {
 		$sql = sprintf("INSERT INTO `orders` (`order_name`, `order_email`) VALUES ('%s', '%s')", 
 			$_POST['name'], $_POST['email']
 		);
-		$pdo->exec($sql);
-		$last_id = $pdo->lastInsertId();
+		$db->exec($sql);
+		$last_id = $db->lastInsertId();
 
 		// INSERT THE ITEMS
 		$sql = "INSERT INTO `orders_items` (`order_id`, `product_id`, `quantity`) VALUES ";
@@ -116,7 +109,7 @@ switch ($_POST['request']) {
 		}
 		$sql = substr($sql,0,-1);	// STRIP LAST COMMA
 		$sql .= ";";
-		$pdo->exec($sql);
+		$db->exec($sql);
 
 		// CLEAR OUT THE CURRENT CART
 		$_SESSION['cart'] = array();
@@ -145,7 +138,7 @@ switch ($_POST['request']) {
 		$sql = sprintf("INSERT INTO `products` (`product_name`, `product_description`, `product_price`) VALUES ('%s', '%s', '%d')", 
 			$_POST['name'], $_POST['desc'], $_POST['price']
 		);
-		$pdo->exec($sql);
+		$db->exec($sql);
 		break;
 }
 ## Test ##
